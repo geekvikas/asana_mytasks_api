@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "asana": "^0.18.5"
+    "asana": "^0.18.5",
+    "nested-json-to-table": "^1.0.6",
+    "node-fetch": "^2.6.1"
   }
 }

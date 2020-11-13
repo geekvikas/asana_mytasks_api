@@ -1,5 +1,4 @@
 const asana = require("asana");
-const USER_ID = "me";
 const INVALID_RESPONSE = "Invalid API Response";
 const WORKSPACE_ID = "780103692902078";
 const DIRECT_LINK = "https://app.asana.com/0/0/{taskId}/f";
@@ -13,11 +12,12 @@ const groupBy = function (xs, key) {
 
 let client = null;
 let workspaceId = null;
+let userId = "me";
 
-async function UserTaskList(userId) {
+async function UserTaskList() {
   return new Promise((resolve, reject) => {
     client.userTaskLists
-      .getUserTaskListForUser(userId || USER_ID, { workspace: workspaceId })
+      .getUserTaskListForUser(userId, { workspace: workspaceId })
       .then((result) => {
         if (result && result.gid) {
           resolve(result.gid);
@@ -74,8 +74,9 @@ exports.mytasks = (req, res) => {
 
   client = asana.Client.create().useAccessToken(req.query.token);
   workspaceId = req.query.workspaceId || WORKSPACE_ID;
+  userId = req.query.userId || "me";
 
-  UserTaskList(req.query.userId)
+  UserTaskList()
     .then((id) => {
       TasksInList(id)
         .then((data) => {
@@ -88,6 +89,6 @@ exports.mytasks = (req, res) => {
     .catch((err) =>
       res
         .status(404)
-        .send(`Cannot get User Task List for User '${USER_ID}', Reason: ${err}`)
+        .send(`Cannot get User Task List for User '${userId}', Reason: ${err}`)
     );
 };
