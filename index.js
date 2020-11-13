@@ -1,8 +1,7 @@
 const asana = require("asana");
 const USER_ID = "me";
 const INVALID_RESPONSE = "Invalid API Response";
-const SERVER_ERROR = "Unexpected Server Error";
-
+const WORKSPACE_ID = "780103692902078";
 const DIRECT_LINK = "https://app.asana.com/0/0/{taskId}/f";
 
 const groupBy = function (xs, key) {
@@ -26,7 +25,7 @@ async function UserTaskList(userId) {
           reject(INVALID_RESPONSE);
         }
       })
-      .catch(err => {
+      .catch((err) => {
         reject(err);
       });
   });
@@ -61,7 +60,7 @@ async function TasksInList(listId) {
           reject(INVALID_RESPONSE);
         }
       })
-      .catch(err => {
+      .catch((err) => {
         reject(err);
       });
   });
@@ -73,13 +72,8 @@ exports.mytasks = (req, res) => {
     return;
   }
 
-if (!req.query.workspaceId) {
-    res.status(400).send("Missing workspaceId");
-    return;
-  }
-
   client = asana.Client.create().useAccessToken(req.query.token);
-  workspaceId = req.query.workspaceId;
+  workspaceId = req.query.workspaceId || WORKSPACE_ID;
 
   UserTaskList(req.query.userId)
     .then((id) => {
