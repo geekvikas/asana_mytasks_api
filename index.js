@@ -15,10 +15,10 @@ const groupBy = function (xs, key) {
 let client = null;
 let workspaceId = null;
 
-async function UserTaskList() {
+async function UserTaskList(userId) {
   return new Promise((resolve, reject) => {
     client.userTaskLists
-      .getUserTaskListForUser(USER_ID, { workspace: workspaceId })
+      .getUserTaskListForUser(userId || USER_ID, { workspace: workspaceId })
       .then((result) => {
         if (result && result.gid) {
           resolve(result.gid);
@@ -26,8 +26,8 @@ async function UserTaskList() {
           reject(INVALID_RESPONSE);
         }
       })
-      .catch(() => {
-        reject(SERVER_ERROR);
+      .catch(err => {
+        reject(err);
       });
   });
 }
@@ -61,22 +61,27 @@ async function TasksInList(listId) {
           reject(INVALID_RESPONSE);
         }
       })
-      .catch(() => {
-        reject(SERVER_ERROR);
+      .catch(err => {
+        reject(err);
       });
   });
 }
 
 exports.mytasks = (req, res) => {
-  if (!req.token || !req.workspaceId) {
-    res.status(400).send("Missing token or workspaceId");
+  if (!req.query.token) {
+    res.status(400).send("Missing token");
     return;
   }
 
-  client = asana.Client.create().useAccessToken(token);
-  workspaceId = req.workspaceId;
+if (!req.query.workspaceId) {
+    res.status(400).send("Missing workspaceId");
+    return;
+  }
 
-  UserTaskList()
+  client = asana.Client.create().useAccessToken(req.query.token);
+  workspaceId = req.query.workspaceId;
+
+  UserTaskList(req.query.userId)
     .then((id) => {
       TasksInList(id)
         .then((data) => {
